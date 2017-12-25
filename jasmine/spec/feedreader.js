@@ -26,11 +26,11 @@ $(function() {
          * 编写一个测试遍历 allFeeds 对象里面的所有的源来保证有链接字段而且链接不是空的。
          */
         it('links are true', function() {
+            var regularExpressionUrl = /^((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/; 
             allFeeds.forEach(function (item, index) {
-                expect(typeof(item.url)).toBe('string');
-                expect(item.url.length).not.toBe(0);
-            });
-            
+                sameDetection(item.url);
+                expect(item.url).toMatch(regularExpressionUrl); 
+            });            
         });
 
         /* TODO:
@@ -38,11 +38,14 @@ $(function() {
          */
         it('names are true', function() {
             allFeeds.forEach(function (item, index) {
-                expect(typeof(item.name)).toBe('string');
-                expect(item.name.length).not.toBe(0);
+                sameDetection(item.name);
             });
             
         });
+        function sameDetection(attr) {
+            expect(typeof(attr)).toBe('string');
+            expect(attr.length).not.toBe(0);
+        }
     });
 
 
@@ -91,13 +94,11 @@ $(function() {
          * 和异步的 done() 函数。
          */
         beforeEach(function(done) {
-            loadFeed(0,function () {
-                done();
-            })    
+            loadFeed(0, done); 
         });
-        it('loadFeed works well', function(done) {              
+        it('loadFeed works well', function() {              
             expect($('.feed .entry').length).not.toBe(0);
-            done();
+            
         });  
     });
     /* TODO: 写一个叫做 "New Feed Selection" 的测试用例 */
@@ -106,16 +107,21 @@ $(function() {
          * 写一个测试保证当用 loadFeed 函数加载一个新源的时候内容会真的改变。
          * 记住，loadFeed() 函数是异步的。
          */
-        var src;            
+        var src,
+            dist;            
         beforeEach(function(done) {
-            src = $('.feed').html();
-            loadFeed(1,function () {
-                done();
+            
+            loadFeed(1, function () {
+                src = $('.feed').html();  
+                loadFeed(0, function () {
+                    dist = $('.feed').html();  
+                    done();
+                })
             })    
         });
-        it('changes', function(done) {              
-            expect($('.feed').html()).not.toEqual(src);
-            done();
+        it('changes', function() {              
+            expect(dist).not.toEqual(src);
+            
         }); 
     });
 }());
